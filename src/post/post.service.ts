@@ -1,49 +1,61 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { PostEntity } from './post.entity';
+import { PostCreateDto } from './entity/post-create.dto';
+import { PostUpdateDto } from './entity/post-update.dto';
+import { PostEntity } from './entity/post.entity';
 
 @Injectable()
 export class PostService {
-  constructor(  
-    @InjectRepository(PostEntity)
-    private readonly postRepository: Repository<PostEntity>
-  ){}
+    constructor(
+        @InjectRepository(PostEntity)
+        private readonly postRepository: Repository<PostEntity>
+    ) {}
 
-  async getAllPosts(){
-    return await this.postRepository.find()
-  }
+    async getAllPosts(queries) {
+        let { page, limit, search, order, published } = queries;
 
-  async getOnePostById(id: number){
-    return await this.postRepository.findOneBy({id})
-  }
+        limit = limit ? +limit : 10;
 
-  async createPost(data: any){
-    console.table(data)
-    try{
-      const newPost = await this.postRepository.create(data)
-      await this.postRepository.save(newPost)
+        const query = await this.postRepository
+            .createQueryBuilder('post')
+            .leftJoinAndSelect('post.categories', 'categories')
 
-      return newPost
-    }catch(error){
-      return error
+        if(published !== undefined) {
+            query
+                .andWhere('post.published = :published', { published })
+        }
+
+        const postList = query
+                            .limit(limit)
+                            .getMany();
+
+        return postList;
     }
-  }
+    async getOnePostById(id: number) {
+        const post = await this.postRepository
+            .createQueryBuilder('post')
+            .leftJoinAndSelect('post.categories', 'categories')
+            .where('post.id = :id', { id })
+            .getOne();
 
-  async updatePost(id: number, data: any){
-    const post = await this.postRepository.findOneBy({id})
-    if(!post) return 'Post not found'
-    await this.postRepository.update(id, data)
+        return post;
+    }
+    async createPost(data: PostCreateDto) {
+        try {
+            return await this.postRepository.save(data);
+        } catch (error) {
+            throw new Error('Error while creating post');
+        }
+    }
+    async updatePost(id: number, data: PostUpdateDto) {
+        const post = await this.postRepository.findOneBy({ id });
+        const postUpdate = { ...post, ...data };
+        await this.postRepository.save(postUpdate);
 
-    return await this.postRepository.findOneBy({id})
-  }
-
-  async softDeletePost(id: number){
-    const post = await this.postRepository.findOneBy({id})
-    if(!post) return 'Post not found'
-    await this.postRepository.softDelete(id)
-
-    return 'Post deleted successfully'
-  }
-
+        return postUpdate;
+    }
+    async softDeletePost(id: number) {
+        return await this.postRepository.softDelete(id);
+    }
 }

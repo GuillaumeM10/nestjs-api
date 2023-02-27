@@ -1,5 +1,6 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
-import { PostEntity } from './post.entity';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query } from '@nestjs/common';
+import { PostCreateDto } from './entity/post-create.dto';
+import { PostUpdateDto } from './entity/post-update.dto';
 import { PostService } from './post.service';
 
 @Controller('posts')
@@ -7,8 +8,11 @@ export class PostController {
   constructor(private readonly postService: PostService) {}
 
   @Get()
-  getAllPosts() {
-    return this.postService.getAllPosts()
+  getAllPosts(
+    @Query() queries
+  ) {
+    console.log(queries)
+    return this.postService.getAllPosts(queries)
   }
 
   @Get(':id')
@@ -20,7 +24,7 @@ export class PostController {
 
   @Post()
   createPost(
-    @Body() data: any
+    @Body() data: PostCreateDto
   ) {
     return this.postService.createPost(data)
   }
@@ -28,7 +32,7 @@ export class PostController {
   @Put(':id')
   updatePost(
     @Param('id', ParseIntPipe) id: number,
-    @Body() data: any
+    @Body() data: PostUpdateDto
   ) {
     return this.postService.updatePost(id, data)
   }
