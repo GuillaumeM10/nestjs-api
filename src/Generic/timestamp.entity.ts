@@ -5,6 +5,7 @@ export class Timestamp {
     type: 'timestamp',
     default: () => 'NOW()',
   })
+    createdAt: Date
 
   @UpdateDateColumn()
     updatedAt: Date

@@ -1,6 +1,6 @@
 import { Timestamp } from "src/Generic/timestamp.entity";
 import { PostEntity } from "src/post/entity/post.entity";
-import { Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('category')
 export class CategoryEntity extends Timestamp {
