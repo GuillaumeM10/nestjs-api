@@ -4,4 +4,5 @@ export class PostCreateDto {
   city?: string;
   categories?: Array<any>;
   published?: boolean;
+  userId?: number;
 }

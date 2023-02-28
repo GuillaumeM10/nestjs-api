@@ -9,6 +9,7 @@ export class CategoryEntity extends Timestamp {
 
     @Column({
         nullable: false,
+        unique: true
     })
     name: string;
 

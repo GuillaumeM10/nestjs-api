@@ -51,8 +51,9 @@ export class PostService {
 
         return post;
     }
-    async createPost(data: PostCreateDto) {
+    async createPost(data: PostCreateDto, user) {
         try {
+            data.userId = +user.id;
             return await this.postRepository.save(data);
         } catch (error) {
             console.log(error);
